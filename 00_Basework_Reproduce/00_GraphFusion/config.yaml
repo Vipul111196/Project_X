@@ -1,0 +1,38 @@
+# GraphFusion Pipeline Configuration
+# Note: For providing paths, use absolute paths for external resources. Relative paths are supported for project resources.
+
+step 1:
+  name: "entity_extraction"
+  data_path: "inputs/abstracts.txt"              # Path to input text data
+  sample_data: "yes"                             # Whether to use a sample of data ("yes" or "no")
+  sample_size: 200                               # Number of documents to sample if sample_data is "yes"
+  output_concepts_file: "outputs/pipeline/sample/extracted_concepts.txt"  # Path to save extracted concepts
+  output_concept_abstracts_json: "outputs/pipeline/sample/concept_abstracts.json"  # Path to save concept abstracts
+  params:
+    language: "english"                          # Language of the input data
+    gold_concept_file: ""                        # Optional path to gold standard concepts file
+    filtered_abstracts_dir: "outputs/pipeline/sample/filtered_abstracts"  # Directory to store filtered abstracts
+
+step 2:
+  name: "triples_extraction"
+  data_path: "outputs/pipeline/sample/concept_abstracts.json"  # Path to concept abstracts from step 1
+  relation_types: "inputs/relation_types.json"                # Path to relation type definitions
+  output_triplet_path: "outputs/pipeline/sample/triplets.jsonl"  # Path to save extracted triples
+  llm:
+    model: "gpt-4o-mini"                        # LLM model to use for triple extraction
+    max_tokens: 10000                           # Maximum tokens for LLM response
+  params: 
+    prompt_template_file: "prompts/prompt_tpextraction.txt"  # Prompt template for triple extraction
+    split: 
+      max_chars: 1000                           # Maximum characters to use from abstracts
+
+step 3:
+  name: "triples_fusion"
+  triplets_path: "outputs/pipeline/sample/triplets.jsonl"  # Path to extracted triples from step 2
+  fused_triplets_path: "outputs/pipeline/sample/fused_triplets.jsonl"  # Path to save fused triples
+  prompt_fusion_template_path: "prompts/prompt_fusion_modified.txt"  # Prompt template for fusion
+
+step 4:
+  name: "saving_to_neo4j"
+  # Neo4j configuration to be added later
+  
