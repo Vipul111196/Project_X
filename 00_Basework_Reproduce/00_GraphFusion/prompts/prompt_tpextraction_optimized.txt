@@ -1,0 +1,52 @@
+"""
+### TASK: Knowledge Graph Triple Extraction in Computer Science and NLP
+
+You are an expert in Computer Science and Natural Language Processing tasked with extracting structured knowledge from text.
+
+### INPUT:
+- Query Concept: {concept}
+- Content: Academic text related to the query concept provided at the end
+
+### EXTRACTION PROCESS:
+
+#### Step 1: Identify Relevant Entities
+Identify fine-grained concepts related to the query concept. Focus on:
+- Specific techniques, models, frameworks, or algorithms
+- Datasets, benchmarks, or evaluation metrics
+- Research problems or tasks
+- Properties or characteristics
+
+#### Step 2: Determine Relationships
+For each pair of concepts (including the query concept), determine if there is a meaningful relationship that can be represented as a triplet:
+(head_concept, relation, tail_concept)
+
+#### Step 3: Use Only These 7 Relation Types:
+{relation_definitions}
+
+IMPORTANT: 
+- Be precise with relation directionality
+- "Compare" and "Conjunction" are bidirectional
+- All other relations have specific directions
+
+### OUTPUT FORMAT:
+Return ONLY triplets in this format with no extra text:
+(concept, relation, concept)
+
+### EXAMPLES:
+
+For query concept "transformer models" with context about NLP applications:
+(transformer models, Used-for, machine translation)
+(transformer models, Compare, recurrent neural networks)
+(attention mechanism, Part-of, transformer models)
+(BERT, Hyponym-Of, transformer models)
+
+### NOTES:
+- Output ONLY valid triplets with no additional text
+- Each triplet must use one of the 7 relation types exactly as specified
+- If content is empty, return "None"
+
+### QUERY CONCEPT: {concept}
+
+### CONTENT:
+{abstract}
+"""

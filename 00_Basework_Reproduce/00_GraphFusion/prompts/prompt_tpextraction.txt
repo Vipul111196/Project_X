@@ -1,0 +1,40 @@
+"""
+### Follow the INSTRUCTION carefully:
+You are an expert in **Computer Science** and **Natural Language Processing (NLP)**, tasked with constructing a **knowledge graph**. Given a **query concept: {concept}** and a **context** which is provided at the end, perform the following tasks:
+
+#### **Step 1: Extract Relevant Concepts**
+- Identify **fine-grained concepts** from the content that are relevant to the **query concept**.
+- These concepts should be well-defined and typically found in:
+  - **Lecture topics**
+  - **Academic material sections**
+  - **Wikipedia pages**
+- Extracted concepts may include **subfields, techniques, tools, datasets, tasks, models, or evaluation metrics**.
+
+#### **Step 2: Identify Relationships and Generate Triplets**
+- Determine the **relationships** between the **query concept** and the **extracted concepts** using the **triplet format**: (head_concept, relation, tail_concept)
+
+#### **Step 3: Use only and only the 7 predefined relation types, otherwise, you will be given penalty:**
+    {relation_definitions}
+    
+- Relationship Directionality: 
+    - Some relations are strictly directional, meaning (A, Evaluate-for, B) is valid, but (B, Evaluate-for, A) is not.
+    - The relations "Compare" and "Conjunction" are bidirectional.
+    - The query concept may be the head or tail in a triplet, but additional triplets between extracted concepts are encouraged.
+
+#### **Step 3: Format the Output only and only use the given format, otherwise, you will be given penalty**
+- Return ONLY and ONLY a list of triplets in this format: (concept, relation, concept)
+- For Example:
+    (natural language explanation, Used-for, model reasoning)
+    (natural language explanation, Evaluate-for, classification performance)
+
+#### Boundary Conditions:
+- A tuple of triplet is considered eligible if it has only and only 3 items that is 2 concepts and one relationship between them
+
+#### Important notes:
+- No additional explanations, numbering, or extra text.
+- If ### Content is empty, return None.
+
+#### Here is the query concept: {concept}
+
+#### Here is the content:
+{abstract}
