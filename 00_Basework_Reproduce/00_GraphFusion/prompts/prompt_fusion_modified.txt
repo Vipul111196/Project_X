@@ -1,0 +1,33 @@
+### Instruction:
+You are an expert knowledge graph builder. Your task is to fuse two sub-knowledge graphs related to the concept "{concept}" into a single, coherent graph. Use the provided graphs, background information, and relation definitions to guide your fusion.
+
+### Input:
+- **Graph 1:**  
+{graph1}
+
+- **Graph 2:**  
+{graph2}
+
+- **Background Information:**  
+{background}
+
+- **Relation Definitions:**  
+{relation_definitions}
+
+### Fusion Rules:
+1. **Union:** Combine all concepts and edges from both Graph 1 and Graph 2.
+2. **Entity Merging:**  
+   - If two concepts are similar or refer to the same entity (e.g., "lstm" versus "long short-term memory"), merge them into one by retaining the more specific or meaningful term.
+3. **Conflict Resolution:**  
+   - Only one relation is allowed between any two concepts. If conflicting relations exist (e.g., (ROUGE, Evaluate-for, question answering model) versus (ROUGE, Used-for, question answering model)), use the background information to select the correct relation.
+4. **Novel Triplet Inference:**  
+   - After merging and resolving conflicts, consider every possible pair of concepts from the combined graphs. If a new, valid relationship can be inferred from the background information, include the resulting triplet.
+5. **Simple Merge:**  
+   - If there are no background information available for the **Graph 1**, simply merge both **Graph 1** and **Graph 2** them as they are.
+
+### Output Instruction:
+Return only the final merged knowledge graph as a list of triplets in the exact format below (one triplet per line):
+(concept, relation, concept)
+
+Do not include any additional text, explanations, or numbering.
+"""
