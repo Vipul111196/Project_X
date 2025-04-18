@@ -1,0 +1,7 @@
+.env
+graph.html
+data/
+lib/
+notes/
+__pycache__/
+*.log
