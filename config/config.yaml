@@ -1,0 +1,33 @@
+Neo4j_Database:
+  # vector_index: 
+  create: 1 # Set to true if you want to create a new vector index {1=true, 0=false}
+  index_name: "chunk-index" # Name of the vector index
+  dimensions: 3072 # Dimensions of the vector index
+  similarity_fn: "cosine" # Similarity function for the vector index "cosine" or "euclidean"
+
+data_preprocessing:
+  already_preprocessed:  1 # Set to true if the data has already been preprocessed {1=true, 0=false}
+  directory_path: "data/raw/" # Path to the directory containing the data files
+  data_preprocessed_path: "data/pre_processed/base_docs/base_docs.pkl" # Path to save the preprocessed data
+
+data_processing:
+  chunking:
+    chunking_required: 0 # Set to true if you want to chunk the data {1=true, 0=false}
+    chunk_size: 1500 # Size of each chunk of data to be processed
+    chunk_overlap: 200 # Overlap between chunks
+    chunk_preprocessed_path: "data/final_processed/normal_chunks/chunks.pkl" # Path to save the chunked data
+  RAPTOR:
+    processed_path: "data/final_processed/RAPTOR_chunks/chunks.pkl" # Path to save the RAPTOR processed data
+    RAPTOR_required : 0 # Set to true if you want to use RAPTOR {1=true, 0=false}
+
+Knowledge_graph:
+  ontology_schema_present: 1 # Set to true if the ontology schema is present {1=true, 0=false}
+  ontology_schema_path: "onto/raw/test_2.ttl" # Path to the ontology schema file
+  extracted_schema_path: "onto/extracted_schema/schema.txt" # Path to save the extracted schema
+
+model:
+  LLM_model_name: "gpt-4o-mini" # Name of the model to be used for vectorization
+  embedding_model_name: "text-embedding-3-large" # Name of the embedding model to be used for vectorization
+
+prompt:
+  prompt_template_path: "prompt/prompt_2.txt" # Path to the prompt template file

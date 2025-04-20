@@ -1,0 +1,15 @@
+neo4j 
+rdflib 
+openai 
+ipywidgets 
+matplotlib
+langchain-core
+langchain-community
+langchain-openai
+langchain-experimental
+neo4j-graphrag
+pymupdf
+tiktoken
+pandas
+scikit-learn
+umap
