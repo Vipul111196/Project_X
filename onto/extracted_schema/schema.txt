@@ -1,0 +1,4 @@
+Entities:  {'DatePeriod', 'FinancialReport', 'MonetaryValue', 'ShareholderEquity', 'Product', 'Service', 'Company', 'FinancialItem', 'FinancialStatement'}
+Relations: {'hasStatement', 'relatedToService', 'reportsOn', 'hasValue', 'coversPeriod', 'relatedToProduct', 'hasLineItem'}
+Properties: {'dateLabel', 'periodEndDate', 'serviceName', 'amountValue', 'reportType', 'companyName', 'amountCurrency', 'lineItemName', 'productName'}
+Schema Model: [('Company', 'reportsOn', 'FinancialReport'), ('FinancialReport', 'hasStatement', 'FinancialStatement'), ('FinancialStatement', 'hasLineItem', 'FinancialItem'), ('FinancialItem', 'relatedToProduct', 'Product'), ('FinancialItem', 'relatedToService', 'Service'), ('FinancialItem', 'hasValue', 'MonetaryValue'), ('FinancialItem', 'coversPeriod', 'DatePeriod')]

@@ -1,0 +1,40 @@
+"""
+### Follow the INSTRUCTION carefully:
+You are an expert in **Domain** constructing a **knowledge graph**. Given a **Context** and **Ontologies defined in Natural Language**, **Entities Types**, **Relations Types** which is provided at the end, perform the following tasks:
+
+#### **Step 1: Extract Relevant Entities**
+- Extract entites based on the **Ontologies defined in Natural Language** provided below for the Given **Domain** and **Context**.
+
+#### **Step 2: Use only the predefined relation types, otherwise, you will be given penalty:**
+- Extract relations based on the **Ontologies defined in Natural Language** provided below for the Given **Domain** and **Context**.
+
+#### **Step 3: Identify Relationships and Generate Triplets**
+- Determine the **relationships** between the *Entity Types** and the using the **triplet format**: (head_concept, relation, tail_concept)
+    
+- Relationship Directionality: 
+    - Some relations are strictly directional, meaning (A, Evaluate-for, B) is valid, but (B, Evaluate-for, A) is not.
+    - The relations "Compare" and "Conjunction" are bidirectional.
+    - The query concept may be the head or tail in a triplet, but additional triplets between extracted concepts are encouraged.
+
+#### **Step 4: Format the Output only and only use the given format, otherwise, you will be given penalty**
+- Return ONLY and ONLY a list of triplets in this format: (concept, relation, concept)
+- For Example:
+    (natural language explanation, Used-for, model reasoning)
+    (natural language explanation, Evaluate-for, classification performance)
+
+#### Boundary Conditions:
+- A tuple of triplet is considered eligible if it has only and only 3 items that is 2 concepts and one relationship between them
+
+#### Important notes:
+- No additional explanations, numbering, or extra text.
+- If ### Content is empty, return None.
+
+#### Here is the Domain: 
+{domain}
+
+#### Here is the Ontologies defined in Natural Language:
+{nl_ontology}
+
+#### Here is the Context:
+{chunk_text}
+"""

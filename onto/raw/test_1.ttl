@@ -1,0 +1,145 @@
+@prefix : <http://neo4j.com/voc/fin#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@base <http://neo4j.com/voc/fin#> .
+
+<http://neo4j.com/voc/fin#> rdf:type owl:Ontology ;
+    owl:imports <https://schema.org/version/latest/schemaorg-current-https.ttl> ;
+    rdfs:comment "Ontology for extracting and organizing financial report data (10-Q, 10-K) into knowledge graphs." .
+
+#################################################################
+#    CLASSES
+#################################################################
+
+###  http://neo4j.com/voc/fin#FinancialReport
+:FinancialReport rdf:type owl:Class ;
+    rdfs:subClassOf schema:CreativeWork ;
+    rdfs:comment "A 10-Q or 10-K financial disclosure submitted by a public company." .
+
+###  http://neo4j.com/voc/fin#Company
+:Company rdf:type owl:Class ;
+    rdfs:subClassOf schema:Organization ;
+    rdfs:comment "A publicly traded corporation that submits financial reports." .
+
+###  http://neo4j.com/voc/fin#FinancialStatement
+:FinancialStatement rdf:type owl:Class ;
+    rdfs:subClassOf schema:CreativeWork ;
+    rdfs:comment "A general class for financial statements." .
+
+###  http://neo4j.com/voc/fin#IncomeStatement
+:IncomeStatement rdf:type owl:Class ;
+    rdfs:subClassOf :FinancialStatement ;
+    rdfs:comment "An income statement detailing revenue, expenses, and net income." .
+
+###  http://neo4j.com/voc/fin#BalanceSheet
+:BalanceSheet rdf:type owl:Class ;
+    rdfs:subClassOf :FinancialStatement ;
+    rdfs:comment "A balance sheet showing assets, liabilities, and equity." .
+
+###  http://neo4j.com/voc/fin#CashFlowStatement
+:CashFlowStatement rdf:type owl:Class ;
+    rdfs:subClassOf :FinancialStatement ;
+    rdfs:comment "A statement of cash inflows and outflows." .
+
+###  http://neo4j.com/voc/fin#ShareholdersEquityStatement
+:ShareholdersEquityStatement rdf:type owl:Class ;
+    rdfs:subClassOf :FinancialStatement ;
+    rdfs:comment "Tracks changes in equity of shareholders over a period." .
+
+###  http://neo4j.com/voc/fin#FinancialMetric
+:FinancialMetric rdf:type owl:Class ;
+    rdfs:subClassOf schema:PropertyValue ;
+    rdfs:comment "A quantitative value in a financial report, like Net Income or Revenue." .
+
+###  http://neo4j.com/voc/fin#StockInformation
+:StockInformation rdf:type owl:Class ;
+    rdfs:subClassOf schema:Intangible ;
+    rdfs:comment "Details about company shares, dividends, etc." .
+
+###  http://neo4j.com/voc/fin#RiskFactor
+:RiskFactor rdf:type owl:Class ;
+    rdfs:subClassOf schema:CreativeWork ;
+    rdfs:comment "Qualitative risks disclosed by a company." .
+
+###  http://neo4j.com/voc/fin#LegalProceeding
+:LegalProceeding rdf:type owl:Class ;
+    rdfs:subClassOf schema:Event ;
+    rdfs:comment "A legal action or case referenced in the financial report." .
+
+###  http://neo4j.com/voc/fin#MarketDisclosure
+:MarketDisclosure rdf:type owl:Class ;
+    rdfs:subClassOf schema:CreativeWork ;
+    rdfs:comment "Narrative discussion on business, market conditions, and trends." .
+
+#################################################################
+#    PROPERTIES
+#################################################################
+
+:reportNumber rdf:type owl:DatatypeProperty ;
+    rdfs:comment "The SEC form number such as 10-Q or 10-K." ;
+    rdfs:domain :FinancialReport ;
+    rdfs:range xsd:string .
+
+:hasFinancialStatement rdf:type owl:ObjectProperty ;
+    rdfs:comment "Links a report to the financial statements it contains." ;
+    rdfs:domain :FinancialReport ;
+    rdfs:range :FinancialStatement .
+
+:hasMetric rdf:type owl:ObjectProperty ;
+    rdfs:comment "Connects a statement to its metrics like revenue or net income." ;
+    rdfs:domain :FinancialStatement ;
+    rdfs:range :FinancialMetric .
+
+:hasRiskFactor rdf:type owl:ObjectProperty ;
+    rdfs:comment "Connects a report to its described risk factors." ;
+    rdfs:domain :FinancialReport ;
+    rdfs:range :RiskFactor .
+
+:hasLegalProceeding rdf:type owl:ObjectProperty ;
+    rdfs:comment "Legal proceedings discussed in the report." ;
+    rdfs:domain :FinancialReport ;
+    rdfs:range :LegalProceeding .
+
+:hasStockInfo rdf:type owl:ObjectProperty ;
+    rdfs:comment "Connects the report to stock/share-related data." ;
+    rdfs:domain :FinancialReport ;
+    rdfs:range :StockInformation .
+
+:relatedTo rdf:type owl:ObjectProperty ;
+    rdfs:comment "General relationship to a company or segment." ;
+    rdfs:domain :MarketDisclosure ;
+    rdfs:range :Company .
+
+:temporalCoverage rdf:type owl:DatatypeProperty ;
+    rdfs:comment "Time span for which a metric applies (e.g., Q3 2022)." ;
+    rdfs:domain :FinancialMetric ;
+    rdfs:range xsd:string .
+
+:unitCode rdf:type owl:DatatypeProperty ;
+    rdfs:comment "Currency or unit, e.g., USD." ;
+    rdfs:domain :FinancialMetric ;
+    rdfs:range xsd:string .
+
+:value rdf:type owl:DatatypeProperty ;
+    rdfs:comment "The actual numeric value of the metric." ;
+    rdfs:domain :FinancialMetric ;
+    rdfs:range xsd:decimal .
+
+:tickerSymbol rdf:type owl:DatatypeProperty ;
+    rdfs:comment "The stock ticker symbol, e.g., AAPL, MSFT." ;
+    rdfs:domain :StockInformation ;
+    rdfs:range xsd:string .
+
+:sharesOutstanding rdf:type owl:DatatypeProperty ;
+    rdfs:comment "Number of shares currently outstanding." ;
+    rdfs:domain :StockInformation ;
+    rdfs:range xsd:decimal .
+
+:dividendDeclared rdf:type owl:DatatypeProperty ;
+    rdfs:comment "Dividend declared per share for the quarter." ;
+    rdfs:domain :StockInformation ;
+    rdfs:range xsd:decimal .

@@ -1,0 +1,34 @@
+"""
+### Follow the INSTRUCTION carefully:
+You are an expert in **Domain** constructing a **knowledge graph**. Given a **Context** and **Ontologies defined in Natural Language**, perform the following tasks:
+
+#### **Step 1: Extract Entities**
+- Extract entities based on the **Natural Language Ontologies** defined below.
+- For each entity, infer its type (class/label) as defined in the ontology.
+
+#### **Step 2: Extract Relations**
+- Use only the allowed relationship types defined in the ontology.
+
+#### **Step 3: Generate Structured Triplets**
+- Output a JSON list of dictionaries, each with the following fields:
+  - `s`: Subject entity (string)
+  - `p`: Predicate/relationship (string)
+  - `o`: Object entity (string)
+  - `stype`: Type/class of the subject (e.g., "Company", "FinancialMetric")
+  - `otype`: Type/class of the object
+  - (optional) `value`, `unitCode`, `reportNumber`, `temporalCoverage`, etc. if applicable
+
+#### **Step 4: Output Format Rules**
+- Return ONLY a **JSON list** of dictionaries with keys as described.
+- Do not return text, explanation, or any extra formatting.
+- If `Context` is empty or not meaningful, return `[]`.
+
+#### Here is the Domain:
+{domain}
+
+#### Here is the Ontologies defined in Natural Language:
+{nl_ontology}
+
+#### Here is the Context:
+{chunk_text}
+"""

@@ -1,0 +1,161 @@
+@prefix fr: <http://example.org/financial-report#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+######################################################
+# Ontology Declaration
+######################################################
+fr:FinancialReportOntology a owl:Ontology ;
+    rdfs:comment "Exhaustive ontology for capturing structured info from financial filings (like 10-Q, 10-K)." ;
+    rdfs:label "Financial Report Ontology (Exhaustive Example)" .
+
+######################################################
+# Classes
+######################################################
+fr:Company a owl:Class ;
+    rdfs:label "Company" ;
+    rdfs:comment "A corporate entity, e.g., Apple Inc." .
+
+fr:FinancialReport a owl:Class ;
+    rdfs:label "Financial Report" ;
+    rdfs:comment "A formal published report, e.g. 10-Q, 10-K, that includes statements." .
+
+fr:FinancialStatement a owl:Class ;
+    rdfs:label "Financial Statement" ;
+    rdfs:comment "A statement within a report, e.g. Income Statement, Balance Sheet, etc." .
+
+fr:FinancialItem a owl:Class ;
+    rdfs:label "Financial Item" ;
+    rdfs:comment "A line item or financial metric, e.g. Net Sales, R&D Expense, etc." .
+
+fr:Product a owl:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A hardware or software product, e.g. iPhone, Mac, iPad, etc." .
+
+fr:Service a owl:Class ;
+    rdfs:label "Service" ;
+    rdfs:comment "A service offering, e.g. AppleCare, iCloud, Payment services, etc." .
+
+fr:MonetaryValue a owl:Class ;
+    rdfs:label "Monetary Value" ;
+    rdfs:comment "Represents a numeric amount in some currency, e.g. 63000000000 USD." .
+
+fr:DatePeriod a owl:Class ;
+    rdfs:label "Date or Period" ;
+    rdfs:comment "Represents a date or range, e.g. Q3 2022 or 2022-06-25." .
+
+fr:ShareholderEquity a owl:Class ;
+    rdfs:label "Shareholder Equity" ;
+    rdfs:comment "Represents a node for total equity or net assets from the statements." .
+
+######################################################
+# Object Properties (Relations)
+######################################################
+fr:reportsOn a owl:ObjectProperty ;
+    rdfs:domain fr:Company ;
+    rdfs:range fr:FinancialReport ;
+    rdfs:label "reports on" ;
+    rdfs:comment "Links a Company to the Financial Report it publishes." .
+
+fr:hasStatement a owl:ObjectProperty ;
+    rdfs:domain fr:FinancialReport ;
+    rdfs:range fr:FinancialStatement ;
+    rdfs:label "has statement" ;
+    rdfs:comment "FinancialReport -> FinancialStatement." .
+
+fr:hasLineItem a owl:ObjectProperty ;
+    rdfs:domain fr:FinancialStatement ;
+    rdfs:range fr:FinancialItem ;
+    rdfs:label "has line item" ;
+    rdfs:comment "FinancialStatement -> FinancialItem." .
+
+fr:relatedToProduct a owl:ObjectProperty ;
+    rdfs:domain fr:FinancialItem ;
+    rdfs:range fr:Product ;
+    rdfs:label "related to product" ;
+    rdfs:comment "Attach a line item to a product, e.g. 'iPhone revenue'." .
+
+fr:relatedToService a owl:ObjectProperty ;
+    rdfs:domain fr:FinancialItem ;
+    rdfs:range fr:Service ;
+    rdfs:label "related to service" ;
+    rdfs:comment "Attach a line item to a service, e.g. 'Cloud revenue'." .
+
+fr:hasValue a owl:ObjectProperty ;
+    rdfs:domain fr:FinancialItem ;
+    rdfs:range fr:MonetaryValue ;
+    rdfs:label "has value" ;
+    rdfs:comment "FinancialItem -> MonetaryValue, e.g. Net Sales -> $1000000." .
+
+fr:coversPeriod a owl:ObjectProperty ;
+    rdfs:domain fr:FinancialItem ;
+    rdfs:range fr:DatePeriod ;
+    rdfs:label "covers period" ;
+    rdfs:comment "Specifies the time period for that item." .
+
+######################################################
+# Data Properties
+######################################################
+fr:companyName a owl:DatatypeProperty ;
+    rdfs:domain fr:Company ;
+    rdfs:range xsd:string ;
+    rdfs:label "company name" .
+
+fr:reportType a owl:DatatypeProperty ;
+    rdfs:domain fr:FinancialReport ;
+    rdfs:range xsd:string ;
+    rdfs:label "report type" ;
+    rdfs:comment "e.g. 10-Q, 10-K, etc." .
+
+fr:periodEndDate a owl:DatatypeProperty ;
+    rdfs:domain fr:FinancialReport ;
+    rdfs:range xsd:date ;
+    rdfs:label "period end date" .
+
+fr:lineItemName a owl:DatatypeProperty ;
+    rdfs:domain fr:FinancialItem ;
+    rdfs:range xsd:string ;
+    rdfs:label "line item name" .
+
+fr:amountValue a owl:DatatypeProperty ;
+    rdfs:domain fr:MonetaryValue ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "amount value" .
+
+fr:amountCurrency a owl:DatatypeProperty ;
+    rdfs:domain fr:MonetaryValue ;
+    rdfs:range xsd:string ;
+    rdfs:label "amount currency" .
+
+fr:dateLabel a owl:DatatypeProperty ;
+    rdfs:domain fr:DatePeriod ;
+    rdfs:range xsd:string ;
+    rdfs:label "date label" .
+
+fr:productName a owl:DatatypeProperty ;
+    rdfs:domain fr:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "product name" .
+
+fr:serviceName a owl:DatatypeProperty ;
+    rdfs:domain fr:Service ;
+    rdfs:range xsd:string ;
+    rdfs:label "service name" .
+
+######################################################
+# Example Individuals
+######################################################
+fr:AppleInc a fr:Company ;
+    fr:companyName "Apple Inc." .
+
+fr:AppleQ3Report2022 a fr:FinancialReport ;
+    rdfs:label "Apple 10-Q for Quarter Ended June 25, 2022" ;
+    fr:reportType "10-Q" ;
+    fr:periodEndDate "2022-06-25"^^xsd:date .
+
+fr:IncomeStatementQ3_2022 a fr:FinancialStatement ;
+    rdfs:label "Condensed Consolidated Statements of Operations" .
+
+fr:AppleInc fr:reportsOn fr:AppleQ3Report2022 .
+fr:AppleQ3Report2022 fr:hasStatement fr:IncomeStatementQ3_2022 .

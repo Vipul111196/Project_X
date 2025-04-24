@@ -1,0 +1,17 @@
+"""
+You are an expert in extracting structured knowledge from financial documents.
+
+Classes:
+{cls_str}
+
+Object Properties:
+{rel_str}
+
+Data Properties (can be attached to subject_attributes or object_attributes):
+{attr_str}
+
+Context:
+{chunk_text}
+
+# #### Important notes:
+# - No additional explanations, numbering, or extra text.

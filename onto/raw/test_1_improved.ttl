@@ -1,0 +1,92 @@
+@prefix ex: <http://example.org/financial/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+ex:disclosesRisk a <http://www.w3.org/2002/07/owl#ObjectProperty> ;
+    rdfs:label "Discloses Risk" ;
+    rdfs:comment "A report that describes risk factors." ;
+    rdfs:domain ex:FinancialReport ;
+    rdfs:range ex:RiskFactor .
+
+ex:dividendDeclared a <http://www.w3.org/2002/07/owl#DatatypeProperty> ;
+    rdfs:label "Dividend Declared" ;
+    rdfs:comment "Reported dividend for the time period." ;
+    rdfs:domain ex:FinancialReport .
+
+ex:hasStockInfo a <http://www.w3.org/2002/07/owl#ObjectProperty> ;
+    rdfs:label "Has Stock Info" ;
+    rdfs:comment "The company has associated stock information." ;
+    rdfs:domain ex:Company ;
+    rdfs:range ex:StockInformation .
+
+ex:includes a <http://www.w3.org/2002/07/owl#ObjectProperty> ;
+    rdfs:label "Includes" ;
+    rdfs:comment "A report includes an income statement." ;
+    rdfs:domain ex:FinancialReport ;
+    rdfs:range ex:IncomeStatement .
+
+ex:includesBalance a <http://www.w3.org/2002/07/owl#ObjectProperty> ;
+    rdfs:label "Includes Balance Sheet" ;
+    rdfs:comment "A report includes a balance sheet." ;
+    rdfs:domain ex:FinancialReport ;
+    rdfs:range ex:BalanceSheet .
+
+ex:name a <http://www.w3.org/2002/07/owl#DatatypeProperty> ;
+    rdfs:label "Name" ;
+    rdfs:comment "Official name of the company." ;
+    rdfs:domain ex:Company .
+
+ex:relatedTo a <http://www.w3.org/2002/07/owl#ObjectProperty> ;
+    rdfs:label "Related To" ;
+    rdfs:comment "The company that filed the report." ;
+    rdfs:domain ex:FinancialReport ;
+    rdfs:range ex:Company .
+
+ex:reportNumber a <http://www.w3.org/2002/07/owl#DatatypeProperty> ;
+    rdfs:label "Report Number" ;
+    rdfs:comment "The EDGAR report number or filing code." ;
+    rdfs:domain ex:FinancialReport .
+
+ex:sharesOutstanding a <http://www.w3.org/2002/07/owl#DatatypeProperty> ;
+    rdfs:label "Shares Outstanding" ;
+    rdfs:comment "Number of shares available." ;
+    rdfs:domain ex:StockInformation .
+
+ex:temporalCoverage a <http://www.w3.org/2002/07/owl#DatatypeProperty> ;
+    rdfs:label "Temporal Coverage" ;
+    rdfs:comment "Time period covered by the report." ;
+    rdfs:domain ex:FinancialReport .
+
+ex:tickerSymbol a <http://www.w3.org/2002/07/owl#DatatypeProperty> ;
+    rdfs:label "Ticker Symbol" ;
+    rdfs:comment "Stock ticker symbol, e.g. AAPL." ;
+    rdfs:domain ex:Company .
+
+ex:unitCode a <http://www.w3.org/2002/07/owl#DatatypeProperty> ;
+    rdfs:label "Unit Code" ;
+    rdfs:comment "Currency or measurement unit used." ;
+    rdfs:domain ex:FinancialReport .
+
+ex:BalanceSheet a <http://www.w3.org/2002/07/owl#Class> ;
+    rdfs:label "Balance Sheet" ;
+    rdfs:comment "Summarizes assets, liabilities, and equity." .
+
+ex:IncomeStatement a <http://www.w3.org/2002/07/owl#Class> ;
+    rdfs:label "Income Statement" ;
+    rdfs:comment "Shows revenue, expenses, and profit." .
+
+ex:RiskFactor a <http://www.w3.org/2002/07/owl#Class> ;
+    rdfs:label "Risk Factor" ;
+    rdfs:comment "Potential risk disclosed by the company." .
+
+ex:StockInformation a <http://www.w3.org/2002/07/owl#Class> ;
+    rdfs:label "Stock Information" ;
+    rdfs:comment "Public stock data reported by the company." .
+
+ex:Company a <http://www.w3.org/2002/07/owl#Class> ;
+    rdfs:label "Company" ;
+    rdfs:comment "A legal entity that files financial reports." .
+
+ex:FinancialReport a <http://www.w3.org/2002/07/owl#Class> ;
+    rdfs:label "Financial Report" ;
+    rdfs:comment "A periodic report (10-K, 10-Q) describing a company's financials." .
+
