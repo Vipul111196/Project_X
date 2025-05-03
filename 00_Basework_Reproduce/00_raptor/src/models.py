@@ -383,3 +383,92 @@ Please summarize the following text:
             return f"Error generating summary: {str(e)}"
 
 
+# ===== Embedding Models ===== #
+
+class OpenAIEmbeddingModel(BaseEmbeddingModel):
+    
+    def __init__(self, model_name: str = "text-embedding-3-small", api_key: str = api_key, **params):
+        """
+        Initialize the OpenAI embedding model
+        
+        Args:
+            model_name: Name of the OpenAI embedding model to use
+            api_key: OpenAI API key (optional, will use env var if not provided)
+            params: Additional parameters for the OpenAI API
+                - dimensions: Output dimension for the embedding
+                - encoding_format: 'float' or 'base64'
+        """
+        self.model_name = model_name
+        self.api_key = api_key
+        self.params = params
+        
+        # Initialize OpenAI client
+        if self.api_key:
+            self.client = openai.OpenAI(api_key=self.api_key)
+        else:
+            # Check if API key is in environment
+            env_api_key = os.environ.get("OPENAI_API_KEY")
+            if env_api_key:
+                self.client = openai.OpenAI(api_key=env_api_key)
+            else:
+                logging.error("No OpenAI API key found in environment or passed to the model")
+                self.client = None
+
+    def create_embedding(self, text: str) -> List[float]:
+        """Create embedding for the given text using OpenAI API"""
+        try:
+            response = self.client.embeddings.create(
+                model=self.model_name,
+                input=text,
+                **self.params
+            )
+            return response.data[0].embedding
+        except Exception as e:
+            logging.error(f"Error creating OpenAI embedding: {e}")
+            return []
+
+
+class SentenceTransformerEmbedding(BaseEmbeddingModel):
+    """Sentence Transformer embedding model"""
+    
+    def __init__(self, model_name: str = "sentence-transformers/multi-qa-mpnet-base-cos-v1", 
+                 device: str = "auto"):
+        """
+        Initialize the Sentence Transformer embedding model
+        
+        Args:
+            model_name: Name of the model to use
+            device: Device to run the model on ("auto", "cpu", "cuda", or "mps")
+        """
+        if not HUGGINGFACE_AVAILABLE:
+            raise ImportError("Sentence Transformers library is not available. Please install it.")
+            
+        # Determine the device to use
+        if device == "auto":
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            
+        self.model_name = model_name
+        try:
+            self.model = SentenceTransformer(model_name, device=device)
+            logging.info(f"Initialized {model_name} embedding model on {device}")
+        except Exception as e:
+            logging.error(f"Error loading embedding model {model_name}: {e}")
+            raise
+
+    def create_embedding(self, text: str) -> List[float]:
+        """
+        Create embedding for the given text
+        
+        Args:
+            text: The text to embed
+            
+        Returns:
+            List[float]: The embedding vector
+        """
+        try:
+            return self.model.encode(text)
+        except Exception as e:
+            logging.error(f"Error creating embedding: {e}")
+            raise
+
+
