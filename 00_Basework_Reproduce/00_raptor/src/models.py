@@ -472,3 +472,137 @@ class SentenceTransformerEmbedding(BaseEmbeddingModel):
             raise
 
 
+# ===== Factory Functions ===== #
+
+def get_qa_model(config: Dict[str, Any]) -> BaseQAModel:
+    """
+    Create a QA model based on the configuration
+    
+    Args:
+        config: Configuration dict with model details
+        
+    Returns:
+        BaseQAModel: The configured QA model
+    """
+    provider = config["raptor"]["models"]["provider"]
+    
+    if provider == "openai":
+        model_name = config["raptor"]["models"]["openai"]["qa_model"]
+        params = config["raptor"]["models"]["openai"]["qa_params"]
+        
+        # Get API key from environment or config
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OpenAI API key not found in environment or config")
+            
+        return OpenAIQAModel(model_name=model_name, api_key=api_key, **params)
+        
+    elif provider == "huggingface":
+        if config["raptor"]["models"]["huggingface"]["unified_model"]:
+            # Unified model case will be handled by get_unified_model
+            return None
+        else:
+            # Not implemented yet - would be a separate QA-only model
+            raise NotImplementedError("Separate Hugging Face QA model not implemented")
+    
+    else:
+        raise ValueError(f"Unknown model provider: {provider}")
+
+
+def get_summarization_model(config: Dict[str, Any]) -> BaseSummarizationModel:
+    """
+    Create a summarization model based on the configuration
+    
+    Args:
+        config: Configuration dict with model details
+        
+    Returns:
+        BaseSummarizationModel: The configured summarization model
+    """
+    provider = config["raptor"]["models"]["provider"]
+    
+    if provider == "openai":
+        model_name = config["raptor"]["models"]["openai"]["summarization_model"]
+        params = config["raptor"]["models"]["openai"]["summarization_params"]
+        
+        # Get API key from environment or config
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OpenAI API key not found in environment or config")
+        
+        return OpenAISummarizationModel(model_name=model_name, api_key=api_key, **params)
+        
+    elif provider == "huggingface":
+        if config["raptor"]["models"]["huggingface"]["unified_model"]:
+            # Unified model case will be handled by get_unified_model
+            return None
+        else:
+            # Not implemented yet - would be a separate summarization-only model
+            raise NotImplementedError("Separate Hugging Face summarization model not implemented")
+    
+    else:
+        raise ValueError(f"Unknown model provider: {provider}")
+
+
+def get_unified_model(config: Dict[str, Any]) -> Union[HFUnifiedModel, None]:
+    """
+    Create a unified model for both QA and summarization if applicable
+    
+    Args:
+        config: Configuration dict with model details
+        
+    Returns:
+        Union[HFUnifiedModel, None]: The unified model or None if not applicable
+    """
+    provider = config["raptor"]["models"]["provider"]
+    
+    if provider == "huggingface" and config["raptor"]["models"]["huggingface"]["unified_model"]:
+        model_name = config["raptor"]["models"]["huggingface"]["model_name"]
+        token = os.environ.get(config["raptor"]["models"]["huggingface"]["token_env"])
+        device = config["raptor"]["models"]["huggingface"]["device"]
+        quantization = config["raptor"]["models"]["huggingface"]["quantization"]
+        qa_params = config["raptor"]["models"]["huggingface"]["qa_params"]
+        summarization_params = config["raptor"]["models"]["huggingface"]["summarization_params"]
+        
+        return HFUnifiedModel(
+            model_name=model_name,
+            token=token,
+            device=device,
+            quantization=quantization,
+            qa_params=qa_params,
+            summarization_params=summarization_params
+        )
+    
+    return None
+
+
+def get_embedding_model(config: Dict[str, Any]) -> BaseEmbeddingModel:
+    """
+    Create an embedding model based on the configuration
+    
+    Args:
+        config: Configuration dict with model details
+        
+    Returns:
+        BaseEmbeddingModel: The configured embedding model
+    """
+    provider = config["raptor"]["embedding"]["provider"]
+    model_name = config["raptor"]["embedding"]["model_name"]
+    
+    if provider == "sentence_transformers":
+        device = config["raptor"]["embedding"]["device"]
+        return SentenceTransformerEmbedding(model_name=model_name, device=device)
+    
+    elif provider == "openai":
+        # Pass the API key directly to the model constructor
+        return OpenAIEmbeddingModel(model_name=model_name, api_key=api_key)
+    
+    else:
+        raise ValueError(f"Unknown embedding provider: {provider}")
+
+
+def clear_gpu_memory():
+    """Clear GPU memory cache if available"""
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        logging.info("GPU memory cache cleared")
