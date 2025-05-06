@@ -1,0 +1,87 @@
+# RAPTOR Config - Recursive Abstractive Processing for Tree-Organized Retrieval
+
+# Dataset Configuration
+dataset:
+  qasper:
+    url_train_dev: "https://qasper-dataset.s3.us-west-2.amazonaws.com/qasper-train-dev-v0.3.tgz"
+    url_test: "https://qasper-dataset.s3.us-west-2.amazonaws.com/qasper-test-and-evaluator-v0.3.tgz"
+    temp_dir: "temp_qasper"
+    output_dir: "dataset"
+    papers_dir: "dataset/QASPER/papers"
+    qas_dir: "dataset/QASPER/qas"
+    train_file: "qasper-train-v0.3.json"
+    dev_file: "qasper-dev-v0.3.json"
+    test_file: "qasper-test-v0.3.json"
+    limit_papers: 5  # Limit number of papers to process (set to -1 for all papers)
+  subset:
+    papers_range: [0, 3]  # Range of papers to process (0-indexed) [start, end)]
+
+# RAPTOR Pipeline Configuration
+raptor:
+  tree:
+    output_dir: "dataset/QASPER/tree"
+    save_path: "dataset/QASPER/tree/raptor_model"
+    chunk_size: 1000
+    chunk_overlap: 200
+    max_papers: 5  # Maximum number of papers to process at once
+  
+  # Model Configuration
+  models:
+    # Provider selection - choose one: "openai" or "huggingface"
+    provider: "openai"
+    
+    # OpenAI model configuration
+    openai:
+      api_key_env: "OPENAI_API_KEY"
+      qa_model: "gpt-4o-mini"
+      summarization_model: "gpt-4o-mini"
+      qa_params:
+        max_tokens: 256
+        temperature: 0.7
+        top_p: 0.95
+      summarization_params:
+        max_tokens: 150
+        temperature: 0.3
+        top_p: 0.95
+    
+    # Hugging Face model configuration
+    huggingface:
+      token_env: "HF_TOKEN"  # Environment variable for HF token
+      unified_model: true    # Use same model for QA and summarization
+      model_name: "meta-llama/Llama-3.1-8B-Instruct"  # Model to use
+      device: "auto"         # "auto", "cpu", "cuda", or "mps"
+      quantization: "fp16"   # "none", "fp16", "int8", or "int4"
+      qa_params:
+        max_new_tokens: 256
+        temperature: 0.7
+        do_sample: true
+      summarization_params:
+        max_new_tokens: 150
+        temperature: 0.3
+        do_sample: false
+    # Embedding model configuration
+  embedding:
+    provider: "openai"  # "sentence_transformers", "openai", "huggingface"
+    model_name: "text-embedding-3-small"  # For OpenAI: "text-embedding-3-small", "text-embedding-3-large", "text-embedding-ada-002"
+    device: "auto"  # "auto", "cpu", "cuda", or "mps" (only for sentence_transformers)
+    # dimensions: 1536  # Optional: dimensions for OpenAI embeddings (default 1536)
+    # encoding_format: "float"  # Optional: "float" (default) or "base64" (for OpenAI embeddings)
+
+# Logging Configuration
+logging:
+  log_file: "logs/raptor_pipeline.log"
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+# Reporting Configuration
+reporting:
+  save_report: true
+  report_file: "dataset/extraction_report.md"
+
+evaluation:
+  qas_dir: "dataset/QASPER/qas"
+  papers_dir: "dataset/QASPER/papers"
+  output_dir: "results/eval_results"
+  papers:
+    - "1503.00841"
+    - "1601.00901"
+    - "1601.01705"
