@@ -324,9 +324,184 @@ def run_mock_rag_pipeline(questions, paper_ids):
     
     return predicted_answers, retrieved_contexts
 
-def main():
-    pass
+def parse_arguments():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(description="Evaluate RAPTOR on QASPER dataset")
+    parser.add_argument("--config", type=str, default="config.yaml", help="Path to config file")
+    parser.add_argument("--tree", type=str, help="Path to RAPTOR tree file")
+    parser.add_argument("--qas-dir", type=str, help="Directory containing Q&A files")
+    parser.add_argument("--papers-dir", type=str, help="Directory containing paper files")
+    parser.add_argument("--output-dir", type=str, help="Output directory for results")
+    parser.add_argument("--papers", type=str, help="Comma-separated list of paper IDs to include")
+    parser.add_argument("--limit", type=int, help="Limit number of questions to process (for testing)")
+    parser.add_argument("--test", action="store_true", help="Run in test mode with simplified pipeline")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+    
+    return parser.parse_args()
 
+def main():
+    """Main function to run the evaluation pipeline"""
+    # Parse arguments
+    args = parse_arguments()
+    
+    # Create logs directory
+    os.makedirs("logs", exist_ok=True)
+    
+    try:
+        # Load configuration
+        config = load_config(args.config)
+        
+        # Set default values from config (if available)
+        tree_path = args.tree or config.get("raptor", {}).get("tree", {}).get("save_path")
+        qas_dir = args.qas_dir or config.get("evaluation", {}).get("qas_dir")
+        papers_dir = args.papers_dir or config.get("evaluation", {}).get("papers_dir")
+        output_dir = args.output_dir or config.get("evaluation", {}).get("output_dir", "results")
+        
+        # Ensure we have a default output_dir
+        if output_dir is None:
+            output_dir = "results"
+            logging.info(f"Using default output directory: {output_dir}")
+        
+        # Get paper IDs from command line or config
+        paper_ids = None
+        if args.papers:
+            paper_ids = [pid.strip() for pid in args.papers.split(",")]
+        elif config.get("evaluation", {}).get("papers"):
+            # Handle both string and list format in config
+            papers_config = config["evaluation"]["papers"]
+            if isinstance(papers_config, str):
+                paper_ids = [pid.strip() for pid in papers_config.split(",")]
+            else:
+                paper_ids = papers_config
+        
+        # Validate required parameters
+        if not tree_path and not args.test:
+            logging.error("Tree path not specified. Use --tree or add to config.yaml")
+            return
+            
+        if not qas_dir:
+            logging.error("QA directory not specified. Use --qas-dir or add to config.yaml")
+            return
+            
+        if not paper_ids:
+            logging.error("No paper IDs specified. Use --papers or add to config.yaml")
+            return
+            
+        logging.info(f"Using papers: {paper_ids}")
+        logging.info(f"QA directory: {qas_dir}")
+        if papers_dir:
+            logging.info(f"Papers directory: {papers_dir}")
+        logging.info(f"Output directory: {output_dir}")
+        
+        # Create output directory
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Load Q&A data for selected papers
+        qasper_data = load_selected_papers_qa(qas_dir, paper_ids, args.limit)
+        
+        if not qasper_data["questions"]:
+            logging.error("No questions found for the specified papers")
+            return
+        
+        # Run RAG pipeline
+        if args.test:
+            logging.info("Running in test mode with mock RAG pipeline")
+            predicted_answers, retrieved_contexts = run_mock_rag_pipeline(
+                qasper_data["questions"],
+                qasper_data["paper_ids"]
+            )
+        else:
+            # Initialize RAPTOR
+            ra = initialize_retrieval_augmentation(config, tree_path)
+            
+            # Add debugging for the first question to understand layer_info structure
+            if args.verbose and qasper_data["questions"]:
+                test_question = qasper_data["questions"][0]
+                logging.info(f"DEBUG: Testing layer_info structure with question: {test_question}")
+                try:
+                    test_answer, test_layer_info = ra.answer_question(
+                        question=test_question,
+                        return_layer_information=True
+                    )
+                    logging.info(f"DEBUG: layer_info type: {type(test_layer_info)}")
+                    if isinstance(test_layer_info, list):
+                        logging.info(f"DEBUG: layer_info is a list with {len(test_layer_info)} items")
+                        if test_layer_info and len(test_layer_info) > 0:
+                            sample_item = test_layer_info[0]
+                            logging.info(f"DEBUG: First item type: {type(sample_item)}")
+                            if isinstance(sample_item, dict):
+                                logging.info(f"DEBUG: First item keys: {list(sample_item.keys())}")
+                    elif isinstance(test_layer_info, dict):
+                        logging.info(f"DEBUG: layer_info keys: {list(test_layer_info.keys())}")
+                except Exception as e:
+                    logging.error(f"DEBUG: Error in test question: {e}")
+            
+            # Run RAG pipeline on QASPER questions
+            predicted_answers, retrieved_contexts = run_rag_pipeline(
+                ra, 
+                qasper_data["questions"],
+                qasper_data["paper_ids"]
+            )
+            
+            # Check if retrieved_contexts are empty
+            if predicted_answers and all(not context for context in retrieved_contexts):
+                logging.warning("All retrieved contexts are empty. This may indicate an issue with context extraction.")
+        
+        # Evaluate the pipeline
+        metrics = evaluate_rag_pipeline(
+            qasper_data["reference_answers"],
+            predicted_answers
+        )
+        
+        # Print verbose output if requested
+        if args.verbose:
+            for i, (question, ref_answer, pred_answer) in enumerate(zip(
+                qasper_data["questions"][:5], 
+                qasper_data["reference_answers"][:5], 
+                predicted_answers[:5]
+            )):
+                print(f"\nQuestion {i+1}: {question}")
+                print(f"Reference answer: {ref_answer}")
+                print(f"Predicted answer: {pred_answer}")
+                
+                # Calculate metrics for this question
+                f1 = f1_score_with_precision_recall(ref_answer, pred_answer)["f1"]
+                print(f"F1 score: {f1:.4f}")
+        
+        # Print results
+        print("\nRAG Pipeline Evaluation Results:")
+        print(f"F1 Match Score: {metrics['f1_match'] * 100:.2f}%")
+        print(f"Token F1 Score: {metrics['token_f1'] * 100:.2f}%")
+        
+        # Compare with RAPTOR results
+        print("\nComparison with RAPTOR:")
+        print("Your RAG Pipeline F1 Match Score: {:.2f}%".format(metrics['f1_match'] * 100))
+        print("RAPTOR (GPT-3) F1 Match Score: 53.10%")
+        print("RAPTOR (GPT-4) F1 Match Score: 55.70%")
+        print("RAPTOR (UnifiedQA) F1 Match Score: 36.60%")
+        
+        # Save detailed results - ensure output_dir is not None
+        if output_dir:
+            save_results(
+                qasper_data,
+                predicted_answers,
+                retrieved_contexts,
+                output_dir
+            )
+        else:
+            save_results(
+                qasper_data,
+                predicted_answers,
+                retrieved_contexts
+            )
+        
+    except Exception as e:
+        logging.error(f"Error in evaluation pipeline: {e}")
+        import traceback
+        traceback.print_exc()
+    finally:
+        # Clean up
+        clear_gpu_memory()
 
 if __name__ == "__main__":
     main()
